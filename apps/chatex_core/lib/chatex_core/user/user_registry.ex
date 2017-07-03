@@ -38,8 +38,8 @@ defmodule ChatexCore.UserRegistry do
 
   def handle_call({:register, user}, _from, users) do
     if Map.has_key?(users, user.username) do
-      Logger.info("Registering user #{user}.")
-      {:reply, :username_taken, users}
+      Logger.info("Registering user #{user.username}.")
+      {:reply, {:username_taken, user.username}, users}
     else
       {:reply, {:registered, user}, Map.put(users, user.username, user)}
     end
