@@ -13,7 +13,8 @@ defmodule ChatexServer.TCP.Connection do
 
   defp read(socket) do
     case :gen_tcp.recv(socket, 0) do
-      {:ok, data} -> data
+      {:ok, data} -> 
+        data
       {:error, :closed} ->
         Logger.info("Client #{inspect(socket)} disconnected.")
     end

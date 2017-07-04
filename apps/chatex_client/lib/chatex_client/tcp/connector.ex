@@ -1,5 +1,6 @@
-defmodule ChatexClient.Connector do
+defmodule ChatexClient.TCP.Connector do
   require Logger
+  use GenServer
 
   def start_link(server_host, server_port) do
     GenServer.start_link(__MODULE__, {server_host, server_port})
@@ -12,7 +13,7 @@ defmodule ChatexClient.Connector do
   def init({server_host, server_port}) do
     IO.puts("Connecting to server #{server_host}@#{server_port}")
     user_info = input_user()
-    Logger.info(inspect(user_info)) 
+    Logger.info(inspect(user_info))
     {:ok, user_info}
   end
 

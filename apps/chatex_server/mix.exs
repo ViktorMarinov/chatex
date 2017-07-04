@@ -21,7 +21,6 @@ defmodule ChatexServer.Mixfile do
   end
 
   defp deps do
-    # [{:chatex_core, in_umbrella: true}]
     []
   end
 end
