@@ -1,10 +1,13 @@
 defmodule ChatexServer.User do
   @enforce_keys [:username]
-  defstruct [:username, :socket]
+  defstruct [:username, :key_phrase]
 
   alias ChatexServer.User
 
-  def new(username, socket \\ nil) do
-    %User{username: username, socket: socket}
+  def new(username, key_phrase) do
+    %User{
+      username: username,
+      key_phrase: key_phrase
+    }
   end
 end

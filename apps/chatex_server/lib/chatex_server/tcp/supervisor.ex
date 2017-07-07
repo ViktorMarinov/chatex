@@ -7,7 +7,7 @@ defmodule ChatexServer.TCP.Supervisor do
 
   def serve(client_socket) do
     {:ok, pid} = Task.Supervisor.start_child(ChatexServer.TCP.TaskSupervisor,
-                                             ChatexServer.TCP.Connection, :listen,
+                                             ChatexServer.TCP.Connection, :accept_user,
                                              [client_socket])
     :ok = :gen_tcp.controlling_process(client_socket, pid)
     {:ok, pid}

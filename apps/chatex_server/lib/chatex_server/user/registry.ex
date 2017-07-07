@@ -38,10 +38,10 @@ defmodule ChatexServer.User.Registry do
 
   def handle_call({:register, user}, _from, users) do
     if Map.has_key?(users, user.username) do
-      {:reply, {:username_taken, user.username}, users}
+      {:reply, {:error, :username_taken}, users}
     else
       Logger.info("Registering user #{user.username}.")
-      {:reply, {:registered, user}, Map.put(users, user.username, user)}
+      {:reply, :ok, Map.put(users, user.username, user)}
     end
   end
 

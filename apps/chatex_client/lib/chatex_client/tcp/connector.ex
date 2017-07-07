@@ -2,40 +2,44 @@ defmodule ChatexClient.TCP.Connector do
   require Logger
   use GenServer
 
-  def start_link(server_host, server_port) do
-    GenServer.start_link(__MODULE__, {server_host, server_port})
+  def connect(server_host, server_port) do
+    Logger.info("Connecting to server #{server_host}@#{server_port}")
+    socket = connect_to_server(server_host, server_port)
+    ChatexClient.TCP.Supervisor.start_listener(socket)
+    loop(socket)
   end
 
-  @doc """
-  Server callbacks
-  """
+  defp loop(socket) do
+    read_input()
+    |> write(socket)
 
-  def init({server_host, server_port}) do
-    IO.puts("Connecting to server #{server_host}@#{server_port}")
-    user_info = input_user()
-    Logger.info(inspect(user_info))
-    {:ok, user_info}
+    loop(socket)
   end
 
-  defp input_user() do
-    [username: "Enter username: ",
-     first_name: "Enter first name: ",
-     last_name: "Enter last name: ",
-     age: {"Enter age: ", &Integer.parse/1}]
-    |> Enum.map(fn {key, value} -> 
-         {key, read(value)}
-       end)
-    |> Enum.into(%{})
+  defp read_input() do
+    IO.gets(">")
   end
 
-  defp read(message) when is_binary(message) do 
-    IO.gets(message) #TODO: add env var for input device
-    |> String.trim
-  end
-  defp read({message, map_function}) do
-    {res, _} = map_function.(read(message))
-    res
+  defp write(data, socket) do
+    case :gen_tcp.send(socket, data) do
+      :ok -> :ok
+      _err -> 
+        #TODO: reconnect?
+        Logger.error("Could not send message to server")
+    end
   end
 
-  defp validate({:username, username}), do: username
+  defp connect_to_server(server_host, server_port) do
+    opts = [:binary, packet: :line, active: false]
+    case :gen_tcp.connect(server_host, server_port, opts) do
+      {:ok, socket} -> 
+        Logger.info(IO.ANSI.green <> "Connected")
+        socket
+      error ->
+        Logger.error("Could not connect to #{server_host}@#{server_port}. Reason:  #{inspect(error)}")
+        Logger.info("Retrying connection...")
+        Process.sleep(1000)
+        connect_to_server(server_host, server_port)
+    end
+  end
 end

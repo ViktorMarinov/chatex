@@ -1,15 +1,19 @@
 defmodule ChatexClient.TCP.Supervisor do
   use Supervisor
 
+  require Logger
+
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, [name: __MODULE__])
   end
 
-  def serve(client_socket) do
-    {:ok, pid} = Task.Supervisor.start_child(ChatexServer.TCP.TaskSupervisor,
-                                             ChatexServer.TCP.Connection, :listen,
-                                             [client_socket])
-    :ok = :gen_tcp.controlling_process(client_socket, pid)
+  def start_listener(socket) do
+    {:ok, pid} = Task.Supervisor.start_child(
+      ChatexClient.TCP.TaskSupervisor,
+      ChatexClient.TCP.Listener, :listen, [socket]
+    )
+    Logger.info("Listener started")
+    :ok = :gen_tcp.controlling_process(socket, pid)
     {:ok, pid}
   end
 
@@ -18,9 +22,9 @@ defmodule ChatexClient.TCP.Supervisor do
     tcp_listen_port = Application.fetch_env!(:chatex_client, :server_tcp_listen_port)
 
     children = [
-      worker(ChatexClient.TCP.Connector, [host, tcp_listen_port])
-      worker(Task, [ChatexClient.TCP.Listener, :listen, [port]])
+      supervisor(Task.Supervisor, [[name: ChatexClient.TCP.TaskSupervisor]]),
+      worker(Task, [ChatexClient.TCP.Connector, :connect, [host, tcp_listen_port]])
     ]
-    supervise(children, strategy: :one_for_one)
+    supervise(children, strategy: :rest_for_one)
   end
 end

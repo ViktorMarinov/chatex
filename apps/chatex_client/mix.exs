@@ -11,6 +11,7 @@ defmodule ChatexClient.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     aliases: aliases(),
      deps: deps()]
   end
 
@@ -20,8 +21,12 @@ defmodule ChatexClient.Mixfile do
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
     [extra_applications: [:logger],
-     env: [server_host: "localhost",
-           server_tcp_listen_port: 8000],
+     env: [chatex_username: System.get_env("CHATEX_USERNAME"),
+           chatex_keyphrase: System.get_env("CHATEX_KEY"),
+           client_node_name: System.get_env("CHATEX_USERNAME"),
+           client_location: "localhost",
+           server_name: "chatex_server",
+           server_location: "SOFM60273496A"],
      mod: {ChatexClient, []}]
   end
 
@@ -40,5 +45,9 @@ defmodule ChatexClient.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     []
+  end
+
+  defp aliases do
+    [test: "test --no-start"]
   end
 end
