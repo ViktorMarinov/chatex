@@ -47,7 +47,7 @@ defmodule ChatexClient.Connector do
 
   def handle_call({:register, username, key_phrase}, _, _) do
     case GenServer.call({:global, @server_name}, {:register, username, key_phrase}) do
-      :ok -> {:reply, :ok, %{}}
+      {:registered, username} -> {:reply, :ok, %{}}
       {:error, _} = err -> {:reply, err, %{}}
     end
   end

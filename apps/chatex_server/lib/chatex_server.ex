@@ -18,8 +18,6 @@ defmodule ChatexServer do
     Logger.info("Chatex is accessible with name #{node_name}")
 
     children = [
-      #supervisor(ChatexServer.TCP.Supervisor, []),
-      supervisor(ChatexServer.User.Supervisor, []),
       supervisor(ChatexServer.Channel.Supervisor, []),
       worker(ChatexServer.Channel.Registry, [ChatexServer.Channel.Registry]),
       worker(ChatexServer.User.Registry, [:user_registry]),

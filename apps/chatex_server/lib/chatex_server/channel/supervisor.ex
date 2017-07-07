@@ -11,7 +11,7 @@ defmodule ChatexServer.Channel.Supervisor do
 
   @doc """
   Starts a new channel proccess. 
-  Accepts %Channel{} struct, which is the state of the Channel GenServer proccess
+  Accepts %Channel{} struct, which is the state of the Channel agent
   """
   def start_channel(%Channel{name: name} = channel) when is_binary(name) do
     Supervisor.start_child(@name, [channel])

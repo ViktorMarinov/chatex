@@ -41,7 +41,7 @@ defmodule ChatexServer.User.Registry do
       {:reply, {:error, :username_taken}, users}
     else
       Logger.info("Registering user #{user.username}.")
-      {:reply, :ok, Map.put(users, user.username, user)}
+      {:reply, {:registered, user.username}, Map.put(users, user.username, user)}
     end
   end
 

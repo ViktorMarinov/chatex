@@ -14,7 +14,7 @@ defmodule ChatexClient.ConnectorTest do
     end
 
     def handle_call({:register, :valid, _key_phrase}, _, state) do
-      {:reply, :ok, state}
+      {:reply, {:registered, :valid}, state}
     end
     def handle_call({:register, :invalid, _key_phrase}, _, state) do
       {:reply, {:error, :username_taken}, state}
