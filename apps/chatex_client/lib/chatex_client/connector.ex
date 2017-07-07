@@ -3,7 +3,8 @@ defmodule ChatexClient.Connector do
 
   require Logger
 
-  @server_name Application.get_env(:chatex_client, :server_name, :chatex_server_controller)
+  @server_controller_name Application.get_env(
+    :chatex_client, :server_controller_name, :chatex_server_controller)
 
   def start_link(name) do
     Logger.debug("Starting connector with name #{name}")
@@ -37,16 +38,16 @@ defmodule ChatexClient.Connector do
   end
 
   def handle_cast({:message, %{username: to_user}, message}, user) do
-    GenServer.call({:global, @server_name}, {:send_private_message, to_user, message})
+    GenServer.call({:global, @server_controller_name}, {:send_private_message, to_user, message})
     {:noreply, user}
   end
   def handle_cast({:message, %{channel: channel}, message}, user) do
-    GenServer.call({:global, @server_name}, {:send_to_channel, channel, message})
+    GenServer.call({:global, @server_controller_name}, {:send_to_channel, channel, message})
     {:noreply, user}
   end
 
   def handle_call({:register, username, key_phrase}, _, _) do
-    case GenServer.call({:global, @server_name}, {:register, username, key_phrase}) do
+    case GenServer.call({:global, @server_controller_name}, {:register, username, key_phrase}) do
       {:registered, username} -> {:reply, :ok, %{}}
       {:error, _} = err -> {:reply, err, %{}}
     end
@@ -56,7 +57,7 @@ defmodule ChatexClient.Connector do
     {:reply, {:error, :already_connected}, state}
   end
   def handle_call({:connect, username, key_phrase}, _, %{}) do
-    case GenServer.call({:global, @server_name}, {:connect, username, key_phrase}) do
+    case GenServer.call({:global, @server_controller_name}, {:connect, username, key_phrase}) do
       # Removed key_phrase from state
       :ok -> {:reply, :ok, %{username: username}}
       {:error, _} = err -> {:reply, err, %{}}
@@ -64,7 +65,7 @@ defmodule ChatexClient.Connector do
   end
 
   def handle_call(:ping, _, user) do
-    {:reply, GenServer.call({:global, @server_name}, :ping), user}
+    {:reply, GenServer.call({:global, @server_controller_name}, :ping), user}
   end
 
   def handle_call({:create_channel, _name}, _, state) do
