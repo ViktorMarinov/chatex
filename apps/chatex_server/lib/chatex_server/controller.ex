@@ -15,11 +15,11 @@ defmodule ChatexServer.Controller do
     defstruct users_by_pid: %{}, pids_by_users: %{} 
 
     def get_user(%State{users_by_pid: users}, pid) do
-      Map.get(users, pid)
+      Map.fetch(users, pid)
     end
 
     def get_pid(%State{pids_by_users: pids}, username) do
-      Map.get(pids, username)
+      Map.fetch(pids, username)
     end
 
     def add(state, username, pid) do
@@ -57,12 +57,16 @@ defmodule ChatexServer.Controller do
   end
 
   def handle_call({:send_private_message, to_user, message}, {pid, _}, state) do
-    username = State.get_user(state, pid)
+    {:ok, username} = State.get_user(state, pid)
     case State.get_pid(state, to_user) do
-      pid when is_pid(pid) -> 
+      {:ok, pid} when is_pid(pid) -> 
         send(pid, {:message, username, message})
         {:reply, :ok, state}
-      err -> {:reply, {:error, err}, state}
+      :error -> {:reply, {:error, :user_not_found}, state}
     end
+  end
+
+  def handle_call({:send_to_channel, channel, message}, {pid, _}, state) do
+    #TODO: implement
   end
 end

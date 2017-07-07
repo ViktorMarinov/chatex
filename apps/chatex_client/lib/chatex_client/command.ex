@@ -34,7 +34,6 @@ defmodule ChatexClient.Command do
   defp parse_in_chat_command(line) do
     case String.split(line) do
       [":exit"] -> {:ok, :exit}
-      [] -> {:ok, :nothing}
       [":get-history"] -> {:ok, :get_history}
       [":send-file", file_path] -> {:ok, {:send_file, file_path}}
       _ -> {:error, {:unknown, line}}

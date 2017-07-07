@@ -4,25 +4,29 @@ defmodule ChatexClient.InputReader.InChat do
   alias ChatexClient.Command
   alias ChatexClient.InputReader
 
-  def listen(to_user) do
+  @connector_name :connector
+
+  def listen(state) do
     InputReader.read(">")
     |> Command.parse_in_chat()
-    |> handle_command(to_user)
-    |> handle_result(to_user)
+    |> handle_command(state)
+    |> handle_result(state)
   end
 
   defp handle_command({:ok, :exit}, _), do: :exit
   defp handle_command({:ok, :nothing}, _), do: :continue
-  defp handle_command(command, to_user) do
+  defp handle_command(command, state) do
     case command do
       {:error, {:unknown, command}} -> IO.puts("Unknown command #{command}")
-      {:ok, {:message, message}} -> Connector.send_message(to_user, message)
-      {:ok, command} -> Connector.call_command({to_user, command})
+      {:ok, :get_history} -> IO.puts("Not supported for private chats")
+      {:ok, {:message, message}} -> Connector.send_message(@connector_name, state, message)
+      {:ok, command} -> Connector.call_command(@connector_name, {state, command})
     end
 
     :continue
   end
 
-  defp handle_result(:continue, to_user), do: listen(to_user)
-  defp handle_result(:exit, to_user), do: IO.puts("Closing chat to user #{to_user}.")
+  defp handle_result(:continue, state), do: listen(state)
+  defp handle_result(:exit, %{username: username}), do: IO.puts("Closing chat to user #{username}.")
+  defp handle_result(:exit, %{channel: channel}), do: IO.puts("Leaving channel #{channel}.")
 end

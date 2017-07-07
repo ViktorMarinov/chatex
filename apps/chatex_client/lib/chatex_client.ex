@@ -15,7 +15,7 @@ defmodule ChatexClient do
     Logger.info("Connected to server node.")
 
     children = [
-      worker(ChatexClient.Connector, []),
+      worker(ChatexClient.Connector, [:connector]),
       # worker(Task, [ChatexClient.InputReader, :start, [username, key_phrase]], restart: :transient)
     ]
 
