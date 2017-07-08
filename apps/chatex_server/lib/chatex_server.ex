@@ -9,13 +9,13 @@ defmodule ChatexServer do
     ChatexServer.Connectivity.get_env_and_make_accessible()
 
     children = [
+      worker(ChatexServer.User.Registry, [:user_registry]),
       supervisor(ChatexServer.Channel.Supervisor, []),
       worker(ChatexServer.Channel.Registry, [:channel_registry]),
-      worker(ChatexServer.User.Registry, [:user_registry]),
       worker(ChatexServer.Controller, [:chatex_server_controller])
     ]
 
-    Supervisor.start_link(children, [strategy: :one_for_one,
+    Supervisor.start_link(children, [strategy: :rest_for_one,
                           name: ChatexServer.Supervisor])
   end
 end

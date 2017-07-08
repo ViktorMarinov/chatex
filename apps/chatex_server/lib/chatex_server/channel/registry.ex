@@ -12,15 +12,15 @@ defmodule ChatexServer.Channel.Registry do
     GenServer.stop(name)
   end
 
-  def create_channel(registry, %Channel{} = channel) do
+  def create(registry, %Channel{} = channel) do
     GenServer.call(registry, {:create, channel})
   end
 
-  def delete_channel(registry, %Channel{} = channel) do
-    GenServer.cast(registry, {:delete, channel})
+  def delete(registry, channel_name) do
+    GenServer.cast(registry, {:delete, channel_name})
   end
 
-  def get_channel(registry, channel_name) do
+  def get(registry, channel_name) do
     GenServer.call(registry, {:get, channel_name})
   end
   
@@ -29,24 +29,40 @@ defmodule ChatexServer.Channel.Registry do
   """
 
   def init(_) do
-    Logger.debug("Initializing ChannelRegistry")
-    {:ok, %{}}
+    Logger.debug("Initializing Channel.Registry")
+    channels = %{}
+    refs = %{}
+    {:ok, {channels, refs}}
   end
 
-  def handle_call({:create, channel}, _from, channels) do
+  def handle_call({:create, channel}, _from, {channels, refs}) do
     if Map.has_key?(channels, channel.name) do
-      {:reply, {:name_taken, channel.name}, channels}
-    else 
-      Logger.info("Creating channel #{channel.name}")
-      {:reply, {:created, channel}, Map.put(channels, channel.name, channel)}
+      {:reply, {:name_taken, channel.name}, {channels, refs}}
+    else
+      {:ok, pid} = Channel.Supervisor.start_channel(channel)
+      ref = Process.monitor(pid)
+      channels = Map.put(channels, channel.name, pid)
+      refs = Map.put(refs, ref, channel.name)
+      {:reply, {:created, channel.name}, {channels, refs}}
     end
   end
 
-  def handle_call({:get, channel_name}, _from, channels) do
-    {:reply, Map.get(channels, channel_name), channels}
+  def handle_call({:get, channel_name}, _from, {channels, _} = state) do
+    {:reply, Map.fetch(channels, channel_name), state}
   end
 
-  def handle_cast({:delete, channel_name}, channels) do
-    {:noreply, Map.delete(channels, channel_name)}
+  def handle_cast({:delete, channel_name}, {channels, refs}) do
+    channels = Map.delete(channels, channel_name)
+    {:noreply, {channels, refs}}
+  end
+
+  def handle_info({:DOWN, ref, :process, _pid, _reason}, {channels, refs}) do
+    {channel_name, refs} = Map.pop(refs, ref)
+    channels = Map.delete(channels, channel_name)
+    {:noreply, {channels, refs}}
+  end
+
+  def handle_info(_msg, state) do
+    {:noreply, state}
   end
 end

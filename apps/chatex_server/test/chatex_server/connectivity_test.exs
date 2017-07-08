@@ -22,6 +22,7 @@ defmodule ChatexServer.ConnectivityTest do
 
   describe "make_accessible" do
     test "starts the node when it is not" do
+      ensure_stopped()
       assert false == Node.alive?
       Connectivity.make_accessible(@server_name, @location)
       assert Node.alive?
@@ -35,9 +36,16 @@ defmodule ChatexServer.ConnectivityTest do
     end
 
     test "returns the {err, reason} if failed to start" do
+      ensure_stopped()
       assert false == Node.alive?
       assert {:error, _} = 
         Connectivity.make_accessible("invalid@@name", @location)
+    end
+  end
+
+  defp ensure_stopped do
+    if Node.alive? do
+      Node.stop
     end
   end
 end

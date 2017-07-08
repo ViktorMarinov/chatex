@@ -7,7 +7,7 @@ defmodule ChatexClient.InputReader.InChat do
   @connector_name :connector
 
   def listen(state) do
-    InputReader.read(">")
+    InputReader.read("")
     |> Command.parse_in_chat()
     |> handle_command(state)
     |> handle_result(state)
@@ -28,5 +28,7 @@ defmodule ChatexClient.InputReader.InChat do
 
   defp handle_result(:continue, state), do: listen(state)
   defp handle_result(:exit, %{username: username}), do: IO.puts("Closing chat to user #{username}.")
-  defp handle_result(:exit, %{channel: channel}), do: IO.puts("Leaving channel #{channel}.")
+  defp handle_result(:exit, %{channel: channel}) do 
+    IO.puts("Leaving channel #{channel}.")
+  end
 end

@@ -73,11 +73,6 @@ defmodule ChatexClient.ConnectorTest do
   end
 
   describe "connect" do
-    test "returns error if already connected", %{test: connector} do
-      :ok = Connector.connect(connector, :valid, :valid)
-      assert {:error, :already_connected} == Connector.connect(connector, :valid, :valid)
-    end
-
     test "adds the username to the state on success", %{test: connector} do
       :ok = Connector.connect(connector, :valid, :valid)
       state = Process.whereis(connector) |> :sys.get_state

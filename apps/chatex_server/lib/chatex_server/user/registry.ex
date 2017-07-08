@@ -32,7 +32,7 @@ defmodule ChatexServer.User.Registry do
   """
   
   def init(_) do
-    Logger.debug("Initializing UserRegistry")
+    Logger.debug("Initializing User.Registry")
     {:ok, %{}}
   end
 
