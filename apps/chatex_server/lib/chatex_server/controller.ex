@@ -1,10 +1,24 @@
 defmodule ChatexServer.Controller do
+  @moduledoc """
+  This is the main controller of the server, that Chatex clients 
+  need to call to execute commands. It stores mapping between 
+  users and their pids and it also monitors every client process.
+
+  To connect to the controller, users need to be registered and
+  call connect, so their pid and monitor ref can be stored in the state.
+  After that, clients can call other commands - their identity is
+  known from their pid.
+  """
   use GenServer
   require Logger
 
   alias ChatexServer.User
   alias ChatexServer.Channel
 
+  @doc """
+  Starts the controller process and links it to the calling process.
+  Should be called only by the ChatexServer.Supervisor
+  """
   def start_link(name) do
     GenServer.start_link(__MODULE__, nil, name: {:global, name})
   end
@@ -12,18 +26,31 @@ defmodule ChatexServer.Controller do
   #Server callbacks
 
   defmodule State do
+    @moduledoc """
+    Represents the state of the controller. Stores mapping between 
+    users and their pids and it also monitors every client process.
+    """
     defstruct users_by_pid: %{},
               pids_by_users: %{},
               refs: %{}
 
+    @doc """
+    Gets a user by their pid
+    """
     def get_user(%State{users_by_pid: users}, pid) do
       Map.fetch(users, pid)
     end
 
+    @doc """
+    Gets the pid of the user with the given username
+    """
     def get_pid(%State{pids_by_users: pids}, username) do
       Map.fetch(pids, username)
     end
 
+    @doc """
+    Adds a new user/pid/ref entry to the state
+    """
     def add(state, username, pid) do
       ref = Process.monitor(pid)
       %State{
@@ -33,6 +60,10 @@ defmodule ChatexServer.Controller do
       }
     end
 
+    @doc """
+    Deletes the user/pid/ref entry by monitor ref.
+    Should be called when the client process is stopped.
+    """
     def delete_by_ref(state, ref) do
       pid = Map.fetch(state.refs, ref)
       user = get_user(state, pid)

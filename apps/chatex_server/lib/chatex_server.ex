@@ -1,4 +1,9 @@
 defmodule ChatexServer do
+  @doc """
+  The application module of the Chatex server.
+  Starts the main Supervisor and all of its children in the correct
+  order. Uses :rest_for_one strategy.
+  """
   use Application
 
   require Logger

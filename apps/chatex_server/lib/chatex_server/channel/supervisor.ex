@@ -1,4 +1,9 @@
 defmodule ChatexServer.Channel.Supervisor do
+  @doc """
+  This is a supervisor that manages the channel agent processes.
+  Uses :simple_one_for_one strategy for dynamically starting new
+  processes. Channel agents should be started only by this supervisor.
+  """
   use Supervisor
 
   alias ChatexServer.Channel

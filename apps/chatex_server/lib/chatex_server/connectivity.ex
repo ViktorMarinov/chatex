@@ -1,4 +1,8 @@
 defmodule ChatexServer.Connectivity do
+  @moduledoc """
+  This module is responsible for the connectivity of the server -
+  to make the Node accessible.
+  """
 
   require Logger
 
@@ -9,6 +13,10 @@ defmodule ChatexServer.Connectivity do
     make_accessible(name, location)
   end
   
+  @doc """
+  Starts the Node with the name name@location if it is not already
+  started and returns the name.
+  """
   def make_accessible(name, location) do
     if Node.alive? do
       {:ok, Node.self()}

@@ -23,7 +23,7 @@ defmodule ChatexServer.TCP.Connection do
     #TODO: validate and check username taken
     # register user
     # add mapping socket/user
-    {:registered, %ChatexServer.User{username: username}}
+    {:registered, username}
   end
 
   def listen(socket, user) do

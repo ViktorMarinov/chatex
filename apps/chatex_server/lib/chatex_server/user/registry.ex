@@ -1,28 +1,56 @@
 defmodule ChatexServer.User.Registry do
+  @moduledoc """
+  This registry stores information about the registered users
+  in Chatex server. It provides operations for registering, deleting and
+  getting user information. The state is a map with usernames as keys 
+  and %User{} structures as values.
+  """
+  
   use GenServer
 
   require Logger
 
+  @doc """
+  Starts the registry process and link it to the calling process.
+  Should be called only by the main supervisor.
+  """
   def start_link(name) do
     GenServer.start_link(__MODULE__, nil, name: name)
   end
 
+  @doc """
+  Stops the registry
+  """
   def stop(registry) do
     GenServer.stop(registry)
   end
 
+  @doc """
+  Registers a new user to the registry
+  """
   def register_user(registry, user) do
     GenServer.call(registry, {:register, user})
   end
 
+  @doc """
+  Deletes the user with the given username.
+  Asynchronous operation that returns :ok, regardless of
+  the success of the operation.
+  """
   def delete_user(registry, username) do
     GenServer.cast(registry, {:delete, username})
   end
 
+  @doc """
+  Returns all the users stored in the registry
+  """
   def get_users(registry) do
     GenServer.call(registry, {:get_all})
   end
 
+  @doc """
+  Gets user by the given username
+  """
   def get_user(registry, username) do
     GenServer.call(registry, {:get, username})
   end

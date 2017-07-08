@@ -1,7 +1,10 @@
 defmodule ChatexServer.Channel do
   @doc """
   An Agent holding channel's state.
-  Users are stored along with their pids.
+  The state of the agent is a %Channel{} struct, which
+  stores the name of the channel, owner of the channel,
+  mapping between usernames and pids and messages, send to
+  the channel.
   """
 
   alias ChatexServer.Channel
@@ -11,8 +14,8 @@ defmodule ChatexServer.Channel do
   @enforce_keys [:name, :owner]
   defstruct [:name,
             :owner,
-            users: %{},
-            messages: []] #{username: pid}
+            users: %{}, #{username: pid}
+            messages: []] 
 
   @doc """
   Starts a new channel
@@ -21,6 +24,9 @@ defmodule ChatexServer.Channel do
     Agent.start_link(fn -> channel end)
   end
 
+  @doc """
+  Gets the name of the channel
+  """
   def get_name(channel) do
     Agent.get(channel, &(&1.name))
   end
