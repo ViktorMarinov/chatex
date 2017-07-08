@@ -39,6 +39,9 @@ defmodule ChatexServer.Channel do
     Agent.get(channel, &(&1.owner))
   end
 
+  @doc """
+  Returns the messages stored in the channel
+  """
   def get_messages(channel) do
     Agent.get(channel, &Enum.reverse(&1.messages))
   end

@@ -52,9 +52,6 @@ defmodule ChatexClient.Connector do
     end
   end
 
-  # def handle_call({:connect, _, _}, _, %{username: _} = state) do 
-  #   {:reply, {:error, :already_connected}, state}
-  # end
   def handle_call({:connect, username, key_phrase}, _, %{}) do
     case call_server_controller({:connect, username, key_phrase}) do
       :ok -> {:reply, :ok, %{username: username}}
@@ -62,24 +59,13 @@ defmodule ChatexClient.Connector do
     end
   end
 
-  def handle_call({%{username: _to_user}, :get_history}, state) do
+  def handle_call({%{username: _}, :get_history}, _, state) do
     IO.puts("Not available for private chats")
     {:reply, :ok, state}
   end
 
-  def handle_call({%{username: _to_user}, {:send_file, _file_path}}, state) do
-    IO.puts("Not implemented")
-    {:reply, :not_implemented, state}
-  end
-
-  def handle_call({%{channel: _channel}, :get_history}, state) do
-    IO.puts("Not implemented")
-    {:reply, :not_implemented, state}
-  end
-
-  def handle_call({%{channel: _channel}, {:send_file, _file_path}}, state) do
-    IO.puts("Not implemented")
-    {:reply, :not_implemented, state}
+  def handle_call({%{channel: channel_name}, :get_history}, _, state) do
+    {:reply, call_server_controller({:get_history, channel_name}), state}
   end
 
   def handle_call(command, _, state) do

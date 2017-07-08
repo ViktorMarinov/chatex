@@ -18,7 +18,11 @@ defmodule ChatexClient.InputReader.InChat do
   defp handle_command(command, state) do
     case command do
       {:error, {:unknown, command}} -> IO.puts("Unknown command #{command}")
-      {:ok, :get_history} -> IO.puts("Not supported for private chats")
+      {:ok, :get_history} -> 
+        case Connector.call_command(@connector_name, {state, :get_history}) do
+          {:error, _} -> IO.puts("Could not get chat history")
+          messages -> messages |> Enum.intersperse("\n") |> IO.puts
+        end
       {:ok, {:message, message}} -> Connector.send_message(@connector_name, state, message)
       {:ok, command} -> Connector.call_command(@connector_name, {state, command})
     end

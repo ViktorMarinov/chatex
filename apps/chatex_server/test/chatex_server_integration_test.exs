@@ -142,11 +142,9 @@ defmodule ChatexServerIntegrationTest do
   end
 
   defp ensure_user_has_joined(channel, user, timeout \\ 5000) do
-    IO.puts("Ensuring #{user} joined #{channel}")
     unless call({:get_channel_users, channel}) |> Enum.member?(user) do
       Process.sleep(400)
       ensure_user_has_joined(channel, user, timeout - 400)
     end
-    IO.puts("#{user} IS IN #{channel}")
   end
 end

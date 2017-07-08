@@ -143,6 +143,20 @@ defmodule ChatexServer.Controller do
     end)
   end
 
+  def handle_call({:get_history, channel_name}, {pid, _}, state) do
+    check_user_connected_and_do(state, pid, fn(_) ->
+      with {:ok, channel} <- Channel.Registry.get(:channel_registry, channel_name) do
+        {:reply, Channel.get_messages(channel), state}
+      else
+        :error -> {:reply, {:error, :channel_not_found}, state}
+      end
+    end)
+  end
+
+  def handle_call(_, _, state) do
+    {:reply, {:error, :command_not_found}, state}
+  end
+
   defp check_user_connected_and_do(state, pid, func) do
     case State.get_user(state, pid) do
       {:ok, username} -> func.(username)
