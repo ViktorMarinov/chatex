@@ -1,6 +1,6 @@
 # ChatexClient
 
-**TODO: Add description**
+This application is the client part of Chatex application.
 
 ## Installation
 
@@ -17,3 +17,7 @@ Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_do
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/chatex_client](https://hexdocs.pm/chatex_client).
 
+## Development 
+
+* Clone this repo, then cd to the new directory
+* Install dependencies with mix deps.get
